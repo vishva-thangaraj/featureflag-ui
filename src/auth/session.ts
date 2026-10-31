@@ -139,8 +139,6 @@ async function rotate(): Promise<string | null> {
     try {
       result = await authApi.POST('/api/v1/auth/refresh')
     } catch {
-      // Offline, or the API is down: not a verdict on the session, so keep it. The next request or
-      // timer tries again.
       settleRestoring()
       return null
     }
