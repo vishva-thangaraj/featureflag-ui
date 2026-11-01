@@ -1,18 +1,28 @@
 import { Navigate, type RouteObject } from 'react-router'
+import { LoginPage } from '@/auth/LoginPage'
+import { RegisterPage } from '@/auth/RegisterPage'
 import { RequireSession } from '@/auth/RequireSession'
+import { RequireSignedOut } from '@/auth/RequireSignedOut'
 import { ScreenPlaceholder } from '@/pages/ScreenPlaceholder'
-import { OrgPicker } from '@/tenant/OrgPicker'
+import { CreateOrgPage } from '@/tenant/CreateOrgPage'
+import { OrgEntry, OrgPicker } from '@/tenant/OrgPicker'
 import { TenantLayout } from '@/tenant/TenantLayout'
 
 export const routes: RouteObject[] = [
-  { path: '/login', element: <ScreenPlaceholder title="Sign in" /> },
-  { path: '/register', element: <ScreenPlaceholder title="Create an account" /> },
+  {
+    element: <RequireSignedOut />,
+    children: [
+      { path: '/login', element: <LoginPage /> },
+      { path: '/register', element: <RegisterPage /> },
+    ],
+  },
   { path: '/invitations/accept', element: <ScreenPlaceholder title="Accept invitation" /> },
   {
     element: <RequireSession />,
     children: [
+      { path: '/', element: <OrgEntry /> },
       { path: '/orgs', element: <OrgPicker /> },
-      { path: '/orgs/new', element: <ScreenPlaceholder title="Create an organization" /> },
+      { path: '/orgs/new', element: <CreateOrgPage /> },
       {
         path: '/t/:tenantId',
         element: <TenantLayout />,
@@ -28,5 +38,5 @@ export const routes: RouteObject[] = [
       },
     ],
   },
-  { path: '*', element: <Navigate to="/orgs" replace /> },
+  { path: '*', element: <Navigate to="/" replace /> },
 ]
