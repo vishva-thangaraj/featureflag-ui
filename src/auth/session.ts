@@ -103,11 +103,26 @@ export function adoptSession(auth: AuthResponse): void {
  */
 export async function logout(): Promise<void> {
   try {
-    await authApi.POST('/api/v1/auth/logout')
+    let result = await postLogout(accessToken)
+    if (result?.response.status === 401) {
+      result = await postLogout(await refresh())
+    }
+    if (result && !result.response.ok) {
+      throw new ApiError(result.response, result.error)
+    }
   } finally {
     clearToken()
     broadcast({ type: 'signed-out' })
   }
+}
+
+// Unlike refresh, logout also wants the bearer token: the server checks the refresh token in the
+// cookie belongs to the caller before revoking it. Sent without one, it is refused before it runs.
+async function postLogout(token: string | null) {
+  if (!token) {
+    return null
+  }
+  return authApi.POST('/api/v1/auth/logout', { headers: { Authorization: `Bearer ${token}` } })
 }
 
 /** Call once at startup: the access token died with the last page, but the cookie may still be good. */

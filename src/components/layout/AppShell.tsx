@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link, NavLink } from 'react-router'
-import { toast } from 'sonner'
 import { Flag, KeyRound, Layers, SlidersHorizontal, Users } from 'lucide-react'
-import { logout } from '@/auth/session'
+import { signOut } from '@/auth/signOut'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useTenant } from '@/tenant/context'
@@ -14,12 +13,6 @@ const NAV = [
   { to: 'members', label: 'Members', icon: Users },
   { to: 'settings', label: 'Settings', icon: SlidersHorizontal },
 ]
-
-function signOut() {
-  logout().catch(() => {
-    toast.error("Couldn't sign out. Check your connection and try again.")
-  })
-}
 
 export function AppShell({ children }: { children: ReactNode }) {
   const tenant = useTenant()

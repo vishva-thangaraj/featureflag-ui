@@ -154,4 +154,55 @@ describe('session', () => {
     expect(session.getAccessToken()).toBeNull()
     expect(session.getSessionStatus()).toBe('signedOut')
   })
+
+  it('sends the access token with logout, which the server needs before it revokes the cookie', async () => {
+    const fetchStub = stubFetch((request) =>
+      pathOf(request) === '/api/v1/auth/logout' ? json({ message: 'Logged out successfully' }) : json(authBody('access-1')),
+    )
+    const session = await openTab()
+    await session.login('user@example.com', 'correct horse')
+
+    await session.logout()
+
+    const [logout] = requestsTo(fetchStub, '/api/v1/auth/logout')
+    expect(logout.headers.get('Authorization')).toBe('Bearer access-1')
+    expect(session.getSessionStatus()).toBe('signedOut')
+  })
+
+  it('refreshes once and retries logout when the access token has expired', async () => {
+    const fetchStub = stubFetch((request) => {
+      switch (pathOf(request)) {
+        case '/api/v1/auth/refresh':
+          return json(authBody('access-2'))
+        case '/api/v1/auth/logout':
+          return request.headers.get('Authorization') === 'Bearer access-2'
+            ? json({ message: 'Logged out successfully' })
+            : json(errorBody(401), 401)
+        default:
+          return json(authBody('access-1'))
+      }
+    })
+    const session = await openTab()
+    await session.login('user@example.com', 'correct horse')
+
+    await session.logout()
+
+    expect(requestsTo(fetchStub, '/api/v1/auth/logout')).toHaveLength(2)
+    expect(session.getSessionStatus()).toBe('signedOut')
+  })
+
+  it('reports a logout the server refused, because the cookie may still be live', async () => {
+    stubFetch((request) =>
+      pathOf(request) === '/api/v1/auth/logout' ? json(errorBody(403, 'Forbidden'), 403) : json(authBody('access-1')),
+    )
+    const session = await openTab()
+    const { ApiError } = await import('@/api/errors')
+    await session.login('user@example.com', 'correct horse')
+
+    const failure = await session.logout().catch((error: unknown) => error)
+
+    expect(failure).toBeInstanceOf(ApiError)
+    expect(failure).toMatchObject({ status: 403 })
+    expect(session.getSessionStatus()).toBe('signedOut')
+  })
 })

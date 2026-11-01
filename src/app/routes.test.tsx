@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { act, cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { json, pathOf } from '@/test/fakes'
@@ -104,20 +104,32 @@ describe('routes', () => {
     expect(screen.queryByRole('navigation', { name: 'Primary' })).toBeNull()
   })
 
-  it('takes someone with one organization straight into it', async () => {
-    const router = renderAt('/orgs')
+  it('takes someone with one organization straight into it from the entry', async () => {
+    const router = renderAt('/')
 
     await screen.findByRole('heading', { name: 'Flags' })
     expect(router.state.location.pathname).toBe(`/t/${ACME.id}/flags`)
   })
 
-  it('lets someone with several organizations choose', async () => {
+  it('sends someone with several organizations from the entry to the list', async () => {
     memberOf(ACME, GLOBEX)
 
-    renderAt('/orgs')
+    const router = renderAt('/')
 
-    await screen.findByRole('heading', { name: 'Choose an organization' })
+    await screen.findByRole('heading', { name: 'Your organizations' })
+    expect(router.state.location.pathname).toBe('/orgs')
     expect(screen.getByRole('link', { name: /Globex/ }).getAttribute('href')).toBe(`/t/${GLOBEX.id}/flags`)
+  })
+
+  it('opens the organization list from the switcher even with one organization, so another can be created', async () => {
+    renderAt(`/t/${ACME.id}/flags`)
+    await screen.findByRole('heading', { name: 'Flags' })
+
+    fireEvent.click(screen.getByRole('link', { name: 'Switch organization: Acme Robotics' }))
+
+    await screen.findByRole('heading', { name: 'Your organizations' })
+    expect(screen.getByRole('link', { name: /Acme Robotics/ }).getAttribute('href')).toBe(`/t/${ACME.id}/flags`)
+    expect(screen.getByRole('link', { name: 'Create an organization' }).getAttribute('href')).toBe('/orgs/new')
   })
 
   it('leaves for the sign-in page as soon as the session ends mid-visit', async () => {
