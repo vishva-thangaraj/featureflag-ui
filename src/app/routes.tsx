@@ -3,6 +3,7 @@ import { LoginPage } from '@/auth/LoginPage'
 import { RegisterPage } from '@/auth/RegisterPage'
 import { RequireSession } from '@/auth/RequireSession'
 import { RequireSignedOut } from '@/auth/RequireSignedOut'
+import { EnvironmentsPage } from '@/features/environments/EnvironmentsPage'
 import { ScreenPlaceholder } from '@/pages/ScreenPlaceholder'
 import { CreateOrgPage } from '@/tenant/CreateOrgPage'
 import { OrgEntry, OrgPicker } from '@/tenant/OrgPicker'
@@ -30,7 +31,7 @@ export const routes: RouteObject[] = [
           { index: true, element: <Navigate to="flags" replace /> },
           { path: 'flags', element: <ScreenPlaceholder title="Flags" /> },
           { path: 'flags/:featureId', element: <ScreenPlaceholder title="Flag" /> },
-          { path: 'environments', element: <ScreenPlaceholder title="Environments" /> },
+          { path: 'environments', element: <EnvironmentsPage /> },
           { path: 'api-keys', element: <ScreenPlaceholder title="API keys" /> },
           { path: 'members', element: <ScreenPlaceholder title="Members" /> },
           { path: 'settings', element: <ScreenPlaceholder title="Settings" /> },
