@@ -9,7 +9,7 @@ import { EnvironmentsPage } from '@/features/environments/EnvironmentsPage'
 import { FlagDetailPage } from '@/features/flags/FlagDetailPage'
 import { FlagsPage } from '@/features/flags/FlagsPage'
 import { MembersPage } from '@/features/members/MembersPage'
-import { ScreenPlaceholder } from '@/pages/ScreenPlaceholder'
+import { SettingsPage } from '@/features/settings/SettingsPage'
 import { CreateOrgPage } from '@/tenant/CreateOrgPage'
 import { OrgEntry, OrgPicker } from '@/tenant/OrgPicker'
 import { TenantLayout } from '@/tenant/TenantLayout'
@@ -39,7 +39,7 @@ export const routes: RouteObject[] = [
           { path: 'environments', element: <EnvironmentsPage /> },
           { path: 'api-keys', element: <ApiKeysPage /> },
           { path: 'members', element: <MembersPage /> },
-          { path: 'settings', element: <ScreenPlaceholder title="Settings" /> },
+          { path: 'settings', element: <SettingsPage /> },
         ],
       },
     ],
