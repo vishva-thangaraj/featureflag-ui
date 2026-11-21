@@ -3,6 +3,7 @@ import { LoginPage } from '@/auth/LoginPage'
 import { RegisterPage } from '@/auth/RegisterPage'
 import { RequireSession } from '@/auth/RequireSession'
 import { RequireSignedOut } from '@/auth/RequireSignedOut'
+import { ApiKeysPage } from '@/features/api-keys/ApiKeysPage'
 import { EnvironmentsPage } from '@/features/environments/EnvironmentsPage'
 import { FlagDetailPage } from '@/features/flags/FlagDetailPage'
 import { FlagsPage } from '@/features/flags/FlagsPage'
@@ -34,7 +35,7 @@ export const routes: RouteObject[] = [
           { path: 'flags', element: <FlagsPage /> },
           { path: 'flags/:featureId', element: <FlagDetailPage /> },
           { path: 'environments', element: <EnvironmentsPage /> },
-          { path: 'api-keys', element: <ScreenPlaceholder title="API keys" /> },
+          { path: 'api-keys', element: <ApiKeysPage /> },
           { path: 'members', element: <ScreenPlaceholder title="Members" /> },
           { path: 'settings', element: <ScreenPlaceholder title="Settings" /> },
         ],
