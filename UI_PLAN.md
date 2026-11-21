@@ -467,7 +467,7 @@ Two tabs: **Members (6)** · **Invitations (2)**.
   line each:
   - **Admin** — *Change flags, environments, API keys and members*
   - **Member** — *View everything, change nothing*
-  - **Viewer** — *View everything, change nothing*
+  - **Viewer** — *Same as Member today: view everything, change nothing*
 
   MEMBER and VIEWER do the same thing today, and the copy says so rather than inventing a difference
   (Part 11).
@@ -774,6 +774,7 @@ None of these block phases 1 and 2. Each row says what the UI does until it land
 |---|---|---|
 | A **protected** setting on environments | Confirmations and the lock icon should follow a deliberate choice, not a name | Match `/^prod/i` |
 | `GET /invitations/{token}` returning `tenantName`, `role` and `email` | The accept page should say what you're joining, and lock the email | Generic copy; the email is typed, and checked by the server |
+| `GET /invitations/{token}` reporting `EXPIRED` past `expiresAt` | It reads `PENDING` until accepted, and accept's 401 for expiry looks like its 401 for "sign in first" | The accept page matches the 401's message (`invitation.expired`) |
 | **Password reset** | Real users forget | No link on the sign-in page |
 | An environment **sort order** | Show the pipeline in order, not in creation order | Creation order |
 | **Who** changed a flag, and a change history | *Last change* should say by whom; incidents need a log | Time only. A history needs a Kafka consumer and a store first |
