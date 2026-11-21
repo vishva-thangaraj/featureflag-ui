@@ -72,7 +72,14 @@ export function DeleteOrganizationDialog({ tenant, onClose }: DeleteOrganization
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <Consequences />
+        {/* The counts stop observing before the delete drops their queries, so none is fetched again with this id. */}
+        {deleteTenant.isIdle || deleteTenant.isError ? (
+          <Consequences />
+        ) : (
+          <p role="status" className="rounded-lg bg-muted px-3 py-2.5 text-sm">
+            Deleting {tenant.name}…
+          </p>
+        )}
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={confirmId}>Type {tenant.name} to confirm</Label>
