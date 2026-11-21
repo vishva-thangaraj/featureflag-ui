@@ -20,7 +20,8 @@ export function useEnvironments() {
       if (!data) {
         throw new ApiError(response, error)
       }
-      return data.envs
+      // Creation order is pipeline order for most teams: development, staging, production.
+      return [...data.envs].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
     },
   })
 }

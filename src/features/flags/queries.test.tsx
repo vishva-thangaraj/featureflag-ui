@@ -40,7 +40,7 @@ function Probe() {
     <>
       <p>features: {features.data?.length ?? '-'}</p>
       <p>config: {config.data?.environment ?? '-'}</p>
-      <button onClick={() => setEnabled.mutate({ featureId: FEATURE, envId: ENV, enabled: false })}>Turn off</button>
+      <button onClick={() => setEnabled.mutate({ featureId: FEATURE, featureKey: 'checkout_v2', envId: ENV, envName: 'production', enabled: false })}>Turn off</button>
       <p>toggle: {setEnabled.status}</p>
     </>
   )

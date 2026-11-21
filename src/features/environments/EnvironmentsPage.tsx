@@ -26,8 +26,7 @@ export function EnvironmentsPage() {
   const [editing, setEditing] = useState<Environment | 'new' | null>(null)
   const [deleting, setDeleting] = useState<Environment | null>(null)
 
-  // Creation order is pipeline order for most teams (development, staging, production).
-  const sorted = [...(environments.data ?? [])].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  const sorted = environments.data ?? []
 
   return (
     <div className="flex flex-col gap-5">
