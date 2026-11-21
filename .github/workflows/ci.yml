@@ -1,0 +1,87 @@
+# Checks every push and pull request; deploys main to https://featureflag.npexception.in.
+#
+# The deploy job assumes an AWS role through GitHub's OIDC token, so no AWS keys are stored here.
+# It needs these repository variables (Settings → Secrets and variables → Actions → Variables):
+#
+#   AWS_ROLE_ARN         the role the platform repository's deploy/README.md ("CI identity") creates
+#   AWS_REGION           ap-south-2
+#   UI_ARTIFACT_BUCKET   the bucket the instance reads builds from
+#   EC2_INSTANCE_ID      i-...
+#
+# The role trusts only this repository's `production` environment, so that environment is what gates
+# a deploy: add required reviewers or a branch rule to it there and they apply here too.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Switch to this earlier release (a short SHA a previous deploy printed) instead of deploying the selected commit.
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://featureflag.npexception.in
+    # One deploy at a time, and never cancel one halfway through.
+    concurrency:
+      group: production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      UI_ARTIFACT_BUCKET: ${{ vars.UI_ARTIFACT_BUCKET }}
+      EC2_INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+      # Through the environment rather than interpolated into the script, so the input is never
+      # parsed as shell.
+      SWITCH_TO: ${{ inputs.release }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        if: env.SWITCH_TO == ''
+        with:
+          name: dist
+          path: dist
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Deploy
+        run: |
+          if [ -n "$SWITCH_TO" ]; then
+            scripts/deploy.sh --switch "$SWITCH_TO"
+          else
+            scripts/deploy.sh
+          fi

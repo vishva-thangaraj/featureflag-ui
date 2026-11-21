@@ -30,3 +30,18 @@ If you are developing a production application, we recommend enabling type-aware
 ```
 
 See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+
+## Deploying
+
+`main` deploys to https://featureflag.npexception.in through [`.github/workflows/ci.yml`](.github/workflows/ci.yml):
+lint, test and build on every push and pull request, then on `main` the `deploy` job uploads `dist/` to S3
+and asks the instance, through AWS SSM, to switch to it. The UI is served by the API's nginx on the same
+origin, so the client needs no API URL: it calls `/api/...` on whatever host served it. The server side is
+in the platform repository: `deploy/README.md`, section "Dashboard".
+
+Roll back by running the workflow by hand (Actions → CI → Run workflow) with `release` set to an earlier
+short SHA; each deploy prints the one before it. By hand from a machine with credentials for the deploy role:
+
+```bash
+AWS_REGION=ap-south-2 UI_ARTIFACT_BUCKET=<bucket> EC2_INSTANCE_ID=<i-...> scripts/deploy.sh --switch <release>
+```
