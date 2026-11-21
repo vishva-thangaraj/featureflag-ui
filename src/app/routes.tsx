@@ -1,4 +1,5 @@
 import { Navigate, type RouteObject } from 'react-router'
+import { AcceptInvitationPage } from '@/auth/AcceptInvitationPage'
 import { LoginPage } from '@/auth/LoginPage'
 import { RegisterPage } from '@/auth/RegisterPage'
 import { RequireSession } from '@/auth/RequireSession'
@@ -7,6 +8,7 @@ import { ApiKeysPage } from '@/features/api-keys/ApiKeysPage'
 import { EnvironmentsPage } from '@/features/environments/EnvironmentsPage'
 import { FlagDetailPage } from '@/features/flags/FlagDetailPage'
 import { FlagsPage } from '@/features/flags/FlagsPage'
+import { MembersPage } from '@/features/members/MembersPage'
 import { ScreenPlaceholder } from '@/pages/ScreenPlaceholder'
 import { CreateOrgPage } from '@/tenant/CreateOrgPage'
 import { OrgEntry, OrgPicker } from '@/tenant/OrgPicker'
@@ -20,7 +22,7 @@ export const routes: RouteObject[] = [
       { path: '/register', element: <RegisterPage /> },
     ],
   },
-  { path: '/invitations/accept', element: <ScreenPlaceholder title="Accept invitation" /> },
+  { path: '/invitations/accept', element: <AcceptInvitationPage /> },
   {
     element: <RequireSession />,
     children: [
@@ -36,7 +38,7 @@ export const routes: RouteObject[] = [
           { path: 'flags/:featureId', element: <FlagDetailPage /> },
           { path: 'environments', element: <EnvironmentsPage /> },
           { path: 'api-keys', element: <ApiKeysPage /> },
-          { path: 'members', element: <ScreenPlaceholder title="Members" /> },
+          { path: 'members', element: <MembersPage /> },
           { path: 'settings', element: <ScreenPlaceholder title="Settings" /> },
         ],
       },
