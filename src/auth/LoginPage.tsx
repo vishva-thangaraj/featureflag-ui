@@ -8,7 +8,7 @@ import { FormError } from '@/components/form/FormError'
 import { TextField } from '@/components/form/TextField'
 import { Button } from '@/components/ui/button'
 import { useCountdown } from '@/hooks/useCountdown'
-import { NETWORK_ERROR } from '@/lib/form-errors'
+import { fallbackMessage, NETWORK_ERROR } from '@/lib/form-errors'
 import { AuthLayout } from './AuthLayout'
 import { login } from './session'
 
@@ -34,7 +34,7 @@ function signInError(error: unknown): string {
     case 429:
       return 'Too many attempts.'
     default:
-      return error.message
+      return fallbackMessage(error)
   }
 }
 

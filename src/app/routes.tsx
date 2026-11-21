@@ -4,6 +4,7 @@ import { RegisterPage } from '@/auth/RegisterPage'
 import { RequireSession } from '@/auth/RequireSession'
 import { RequireSignedOut } from '@/auth/RequireSignedOut'
 import { EnvironmentsPage } from '@/features/environments/EnvironmentsPage'
+import { FlagsPage } from '@/features/flags/FlagsPage'
 import { ScreenPlaceholder } from '@/pages/ScreenPlaceholder'
 import { CreateOrgPage } from '@/tenant/CreateOrgPage'
 import { OrgEntry, OrgPicker } from '@/tenant/OrgPicker'
@@ -29,7 +30,7 @@ export const routes: RouteObject[] = [
         element: <TenantLayout />,
         children: [
           { index: true, element: <Navigate to="flags" replace /> },
-          { path: 'flags', element: <ScreenPlaceholder title="Flags" /> },
+          { path: 'flags', element: <FlagsPage /> },
           { path: 'flags/:featureId', element: <ScreenPlaceholder title="Flag" /> },
           { path: 'environments', element: <EnvironmentsPage /> },
           { path: 'api-keys', element: <ScreenPlaceholder title="API keys" /> },

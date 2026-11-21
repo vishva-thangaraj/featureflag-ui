@@ -132,6 +132,17 @@ describe('sign in', () => {
     expect((await screen.findByRole('alert')).textContent).toBe('Email or password is incorrect.')
   })
 
+  it("says the server isn't responding when only the proxy in front of it answers", async () => {
+    session.login.mockRejectedValue(rejection(502, undefined))
+    renderAt('/login')
+
+    fill('Email', 'user@example.com')
+    fill('Password', 'correct horse')
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+
+    expect((await screen.findByRole('alert')).textContent).toBe("The server isn't responding. Try again in a moment.")
+  })
+
   it('turns the button into a countdown after too many attempts', async () => {
     session.login.mockRejectedValue(rejection(429, errorBody(429, 'Too many requests'), { 'Retry-After': '6' }))
     renderAt('/login')
