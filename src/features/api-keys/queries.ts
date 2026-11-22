@@ -11,13 +11,15 @@ export type CreatedApiKey = components['schemas']['CreatedApiKeyResponse']
 interface UseApiKeysOptions {
   /** For a screen waiting on a change: refetch after this many ms, given the keys it has; false to stop. */
   refetchInterval?: (keys: ApiKey[] | undefined) => number | false
+  enabled?: boolean
 }
 
 /** Every key in the organization, newest first, revoked ones included: they stay listed for the audit trail. */
-export function useApiKeys({ refetchInterval }: UseApiKeysOptions = {}) {
+export function useApiKeys({ refetchInterval, enabled = true }: UseApiKeysOptions = {}) {
   const tenantId = useTenantId()
   return useQuery({
     queryKey: tenantKey(tenantId, 'api-keys'),
+    enabled,
     queryFn: async () => {
       const { data, error, response } = await api.GET('/api/v1/api-keys', { headers: tenantHeaders(tenantId) })
       if (!data) {
