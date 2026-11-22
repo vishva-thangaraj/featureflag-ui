@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { EnvSwitcher } from '@/features/environments/EnvSwitcher'
+import { FirstRunChecklist } from '@/features/first-run/FirstRunChecklist'
+import { useFirstRun } from '@/features/first-run/useFirstRun'
 import { useSelectedEnvironment } from '@/features/environments/useSelectedEnvironment'
 import { formatDateTime, formatRelative } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -39,6 +41,7 @@ export function FlagsPage() {
   const { environments, selected, select } = useSelectedEnvironment()
   const features = useFeatures()
   const config = useFlagConfig(selected?.name)
+  const firstRun = useFirstRun(canWrite)
   const [creating, setCreating] = useState(false)
 
   const query = params.get('q') ?? ''
@@ -90,7 +93,13 @@ export function FlagsPage() {
     navigate(detailPath(feature))
   }
 
-  const loading = environments.isPending || features.isPending || (selected !== undefined && config.isPending)
+  const loading =
+    environments.isPending ||
+    features.isPending ||
+    (selected !== undefined && config.isPending) ||
+    // An empty organization waits for the checklist rather than flashing the empty state it replaces.
+    (firstRun.pending && (!selected || (features.data?.length ?? 0) === 0))
+  const checklist = firstRun.visible && <FirstRunChecklist firstRun={firstRun} />
   const failed = environments.isError || features.isError || config.isError
 
   return (
@@ -118,6 +127,9 @@ export function FlagsPage() {
         }
       />
 
+      {/* Kept outside the states below, so it stays put, dialogs and all, as the page fills in around it. */}
+      {!failed && checklist}
+
       {loading ? (
         <div role="status" aria-label="Loading flags" className="flex flex-col gap-2 rounded-xl border bg-card p-4">
           {[0, 1, 2, 3].map((row) => (
@@ -138,7 +150,7 @@ export function FlagsPage() {
           </Button>
         </EmptyCard>
       ) : !selected ? (
-        <EmptyCard title="Set up environments first">
+        !checklist && <EmptyCard title="Set up environments first">
           <p className="text-muted-foreground">
             Flags are switched on per environment, and this organization has none yet.
           </p>
@@ -147,7 +159,7 @@ export function FlagsPage() {
           </Button>
         </EmptyCard>
       ) : rows.length === 0 ? (
-        <EmptyCard title="No flags yet">
+        !checklist && <EmptyCard title="No flags yet">
           <p className="text-muted-foreground">Flags turn features on and off without a deploy.</p>
           {canWrite ? (
             <Button onClick={() => setCreating(true)}>
